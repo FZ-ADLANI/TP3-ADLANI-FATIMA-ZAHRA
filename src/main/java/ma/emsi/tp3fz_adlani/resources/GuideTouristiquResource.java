@@ -1,50 +1,35 @@
 package ma.emsi.tp3fz_adlani.resources;
 
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.List;
+import ma.emsi.tp3fz_adlani.llm.ServiceLLM;
 
 @Path("/guide")
-
 public class GuideTouristiquResource {
+
+    @Inject
+    private ServiceLLM serviceLLM;
+
     @GET
     @Path("/lieu/{ville_ou_pays}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getLieuxTouristiques(@PathParam("ville_ou_pays") String lieu) {
+    public Response getInfosTouristiques(@PathParam("ville_ou_pays") String lieu) {
+        try {
+            // Utiliser le service LLM pour obtenir les informations touristiques
+            String reponseLLM = serviceLLM.obtenirInfosTouristiques(lieu);
 
-        // Convertir le paramètre en minuscules pour faciliter la comparaison
-        String lieuNormalise = lieu.toLowerCase();
+            // Retourner la réponse JSON directement
+            return Response.ok(reponseLLM).build();
 
-        // Déterminer les lieux touristiques en fonction du paramètre
-        List<String> lieuxTouristiques;
-
-        switch (lieuNormalise) {
-            case "paris":
-                lieuxTouristiques = Arrays.asList("Tour Eiffel", "Louvre");
-                break;
-            case "maroc":
-                lieuxTouristiques = Arrays.asList("Jamaa El Fna", "Hassan II");
-                break;
-            case "rome":
-                lieuxTouristiques = Arrays.asList("Colisée", "Fontaine de Trevi");
-                break;
-            case "japon":
-                lieuxTouristiques = Arrays.asList("Mont Fuji", "Temple Kinkaku-ji");
-                break;
-            case "new york":
-                lieuxTouristiques = Arrays.asList("Statue de la Liberté", "Central Park");
-                break;
-            default:
-                lieuxTouristiques = Arrays.asList("Place principale", "Musée local");
-                break;
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"erreur\": \"Service temporairement indisponible\"}")
+                    .build();
         }
-
-        // Retourner la réponse JSON avec statut 200
-        return Response.ok(lieuxTouristiques).build();
     }
 }
