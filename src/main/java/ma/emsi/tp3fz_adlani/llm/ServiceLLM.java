@@ -27,7 +27,17 @@ public class ServiceLLM {
         this.guide = AiServices.create(GuideTouristique.class, modele);
     }
 
+    public String obtenirInfosTouristiques(String lieu, int nombreEndroits) {
+        String prompt = String.format(
+                "Donne-moi les %d principaux endroits à visiter à %s. " +
+                        "Réponds uniquement au format JSON spécifié.",
+                nombreEndroits, lieu
+        );
+        return guide.obtenirInfosTouristiques(prompt);
+    }
+
+    // Méthode conservée pour la compatibilité (2 endroits par défaut)
     public String obtenirInfosTouristiques(String lieu) {
-        return guide.obtenirInfosTouristiques(lieu);
+        return obtenirInfosTouristiques(lieu, 2);
     }
 }
